@@ -1,0 +1,97 @@
+---
+title: "Seurat"
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dependencies
+
+Just Seurat.
+
+```{r load_seurat}
+suppressPackageStartupMessages(library("Seurat"))
+```
+
+## Data
+
+Download pbmc3k from my server.
+
+```{r download_files}
+if(!file.exists("barcodes.tsv")){
+  download.file(url = "https://davetang.org/file/pbmc3k/filtered_gene_bc_matrices/hg19/barcodes.tsv", destfile = "barcodes.tsv")
+}
+
+if(!file.exists("genes.tsv")){
+  download.file(url = "https://davetang.org/file/pbmc3k/filtered_gene_bc_matrices/hg19/genes.tsv", destfile = "genes.tsv")
+}
+
+if(!file.exists("matrix.mtx")){
+  download.file(url = "https://davetang.org/file/pbmc3k/filtered_gene_bc_matrices/hg19/matrix.mtx", destfile = "matrix.mtx")
+}
+```
+
+## Seurat workflow
+
+Run Seurat workflow.
+
+```{r seurat_workflow}
+pbmc3k.data <- Seurat::Read10X(data.dir = ".")
+
+pbmc3k <- Seurat::CreateSeuratObject(
+  counts = pbmc3k.data,
+  min.cells = 3,
+  min.features = 200,
+  project = "pbmc3k"
+)
+
+pbmc3k[["percent.mt"]] <- PercentageFeatureSet(pbmc3k, pattern = "^MT-")
+pbmc3k <- subset(pbmc3k, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+pbmc3k <- NormalizeData(pbmc3k, normalization.method = "LogNormalize", scale.factor = 10000, verbose = FALSE)
+pbmc3k <- FindVariableFeatures(pbmc3k, selection.method = "vst", nfeatures = 2000, verbose = FALSE)
+pbmc3k <- ScaleData(pbmc3k, verbose = FALSE)
+pbmc3k <- RunPCA(pbmc3k, features = VariableFeatures(object = pbmc3k), verbose = FALSE)
+pbmc3k <- RunUMAP(pbmc3k, dims = 1:10, verbose = FALSE)
+```
+
+## System info
+
+List CPU information.
+
+```{r lscpu}
+system_info <- system("lscpu", intern = TRUE)
+
+data.frame(info = system_info) |>
+  dplyr::mutate(info = sub(pattern = ":\\s+", replacement = ":", x = info)) |>
+  tidyr::separate_wider_delim(cols = info, delim = ":", names = c('key', 'value'), too_many = "merge") -> system_info
+```
+
+## Export
+
+Use date to prefix outputs.
+
+```{r right_now}
+Sys.time() |>
+  gsub(pattern = "-", replacement = "") |>
+  sub(pattern = "\\.\\d+$", replacement = "") |>
+  gsub(pattern = ":", replacement = "") |>
+  sub(pattern = "\\s", replacement = "_")  -> right_now
+```
+
+Export results.
+
+```{r export}
+pbmc3k@reductions$pca@cell.embeddings |>
+  as.data.frame() |>
+  tibble::rownames_to_column('barcode') |>
+  readr::write_tsv(file = paste0(right_now, "_pca.tsv"))
+
+pbmc3k@reductions$umap@cell.embeddings |>
+  as.data.frame() |>
+  tibble::rownames_to_column('barcode') |>
+  readr::write_tsv(file = paste0(right_now, "_umap.tsv"))
+
+readr::write_tsv(x = system_info, file = paste0(right_now, "_system_info.tsv"))
+```
