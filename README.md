@@ -56,3 +56,17 @@ d8f3e0e633fbdfd86c58e2e762db9716  i7-12650H/20250607_094027_umap.tsv
 d10f43dab22f932f78754ebf90dee7e7  i7-12650H/20250607_094122_system_info.tsv
 d8f3e0e633fbdfd86c58e2e762db9716  i7-12650H/20250607_094122_umap.tsv
 ```
+
+Results are the same when run on the same computer.
+
+```console
+md5sum Cortex-A76/*
+```
+```
+d0a87da09ff9050b49d8d53a3da51f96  Cortex-A76/20250607_133111_pca.tsv
+b271267d841d4ff3e5e659a8d09680bd  Cortex-A76/20250607_133111_system_info.tsv
+bc7241d7f6ae67e4f8a487a8564060dc  Cortex-A76/20250607_133111_umap.tsv
+d0a87da09ff9050b49d8d53a3da51f96  Cortex-A76/20250607_133243_pca.tsv
+b271267d841d4ff3e5e659a8d09680bd  Cortex-A76/20250607_133243_system_info.tsv
+bc7241d7f6ae67e4f8a487a8564060dc  Cortex-A76/20250607_133243_umap.tsv
+```

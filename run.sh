@@ -3,7 +3,16 @@
 set -euo pipefail
 
 VER=20250607
-IMG=davetang/seurat_test:${VER}
+ARCH=$(arch)
+
+if [[ ${ARCH} == aarch64 ]]; then
+   IMG=davetang/seurat_test_aarch64:${VER}
+elif [[ ${ARCH} == x86_64 ]]; then
+   IMG=davetang/seurat_test:${VER}
+else
+   >&2 echo Unsupported architecture
+   exit 1
+fi
 
 docker run \
    --rm \
