@@ -1,0 +1,71 @@
+---
+title: "Comparing Seurat results"
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dependencies
+
+Just Seurat.
+
+```{r load_seurat}
+suppressPackageStartupMessages(library("Seurat"))
+suppressPackageStartupMessages(library(tidyverse))
+```
+
+## Data
+
+Compare PCA results run on i5-8500 CPU.
+
+```{r i5_8500_pca}
+i5_8500_pca_1 <- readr::read_tsv(file = "i5-8500/20250607_085524_pca.tsv", show_col_types = FALSE)
+i5_8500_pca_2 <- readr::read_tsv(file = "i5-8500/20250607_085641_pca.tsv", show_col_types = FALSE)
+
+all.equal(i5_8500_pca_1, i5_8500_pca_2)
+```
+
+Compare PCA results run on i7-9700 CPU.
+
+```{r i7_9700_pca}
+i7_9700_pca_1 <- readr::read_tsv(file = "i7-9700/20250607_092219_pca.tsv", show_col_types = FALSE)
+i7_9700_pca_2 <- readr::read_tsv(file = "i7-9700/20250607_092254_pca.tsv", show_col_types = FALSE)
+
+all.equal(i7_9700_pca_1, i7_9700_pca_2)
+```
+
+Compare PCA results on i5-8500 CPU with i7-9700 CPU.
+
+```{r i5_8500_pca_vs_i7_9700_pca}
+all.equal(i5_8500_pca_1, i7_9700_pca_1)
+```
+
+Plot PCs.
+
+```{r i5_8500_pca_vs_i7_9700_pca_plot}
+plot(i5_8500_pca_1$PC_1, i7_9700_pca_1$PC_1, pch = 16)
+plot(i5_8500_pca_1$PC_7, i7_9700_pca_1$PC_7, pch = 16)
+```
+
+Compare PCA results run on Raspberry Pi 5.
+
+```{r cortex_a76}
+cortex_a76_pca_1 <- readr::read_tsv(file = "Cortex-A76/20250607_133111_pca.tsv", show_col_types = FALSE)
+cortex_a76_pca_2 <- readr::read_tsv(file = "Cortex-A76/20250607_133243_pca.tsv", show_col_types = FALSE)
+
+all.equal(cortex_a76_pca_1, cortex_a76_pca_2)
+```
+
+Compare PCA results on Cortex A76 with i7-9700 CPU.
+
+```{r cortex_a76_vs_i7_9700_pca}
+head(all.equal(cortex_a76_pca_1, i7_9700_pca_1))
+```
+
+Plot PCs.
+
+```{r cortex_a76_vs_i7_9700_pca_plot}
+plot(cortex_a76_pca_1$PC_1, i7_9700_pca_1$PC_1, pch = 16)
+```
